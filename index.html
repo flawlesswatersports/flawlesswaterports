@@ -1,0 +1,870 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Flawless Watersports: Premier jetski and yacht rentals in Miami. Book luxury jetskis ($150/hr) or bespoke yacht charters online in English or Spanish!">
+    <meta name="keywords" content="Miami jetski rental, luxury yacht charter Miami, Flawless Watersports, water sports, boat rentals">
+    <title>Flawless Watersports | Luxury Jet Ski & Yacht Rentals in Miami</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!-- Google Analytics (Replace G-XXXXXXXXXX with your tracking ID) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX');
+    </script>
+    <!-- Weglot for Multi-Language Support -->
+    <script src="https://cdn.weglot.com/weglot.min.js"></script>
+    <script>
+        Weglot.initialize({
+            api_key: 'your-weglot-api-key',
+            original_language: 'en',
+            destination_languages: ['es'],
+            excluded_paths: ['/admin'],
+            auto_switch: false
+        });
+    </script>
+    <!-- Schema Markup for SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "name": "Flawless Watersports",
+        "description": "Luxury jetski and yacht rentals in Miami, Florida",
+        "url": "https://username.github.io/flawlesswatersports",
+        "telephone": "+13057978114",
+        "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Miami",
+            "addressRegion": "FL",
+            "postalCode": "33139",
+            "addressCountry": "US"
+        },
+        "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": 25.777777,
+            "longitude": -80.141888
+        },
+        "openingHours": "Mo-Su 08:00-22:00"
+    }
+    </script>
+    <style>
+        :root {
+            --aqua-blue: #00C4B4;
+            --sunny-yellow: #FFD700;
+            --coral-red: #FF6B6B;
+            --dark-gray: #1F2937;
+        }
+        .bg-aqua-blue { background-color: var(--aqua-blue); }
+        .text-aqua-blue { color: var(--aqua-blue); }
+        .bg-sunny-yellow { background-color: var(--sunny-yellow); }
+        .text-sunny-yellow { color: var(--sunny-yellow); }
+        .bg-coral-red { background-color: var(--coral-red); }
+        .text-coral-red { color: var(--coral-red); }
+        .bg-dark-gray { background-color: var(--dark-gray); }
+        .text-dark-gray { color: var(--dark-gray); }
+        .book-now-btn, .contact-btn, .view-yachts-btn {
+            transition: transform 0.2s, background-color 0.3s;
+            font-weight: bold;
+            padding: 1.2rem 2rem;
+            font-size: 1.2rem;
+        }
+        .book-now-btn:hover, .contact-btn:hover, .view-yachts-btn:hover {
+            transform: scale(1.05);
+            background-color: var(--coral-red);
+            color: white;
+        }
+        .gallery-img {
+            transition: transform 0.3s;
+            object-fit: cover;
+            width: 100%;
+            height: 200px;
+        }
+        .gallery-img:hover {
+            transform: scale(1.03);
+        }
+        #active-viewers {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background-color: var(--coral-red);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 0.9rem;
+            z-index: 50;
+        }
+        .hero-bg {
+            background-image: url('https://images.unsplash.com/photo-1585554497942-a6e7fd86eace?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=600');
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .flatpickr-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            background-color: white;
+        }
+        #chatbot-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            display: none;
+            flex-direction: column;
+            z-index: 100;
+        }
+        #chatbot-header {
+            background-color: var(--aqua-blue);
+            color: white;
+            padding: 12px;
+            border-radius: 12px 12px 0 0;
+            font-weight: bold;
+            text-align: center;
+        }
+        #chatbot-messages {
+            flex-grow: 1;
+            padding: 12px;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+        #chatbot-input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-top: 1px solid #e5e7eb;
+            border-radius: 0 0 12px 12px;
+            outline: none;
+        }
+        #chatbot-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--coral-red);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+        .chatbot-message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+        .user-message {
+            background-color: var(--sunny-yellow);
+            margin-left: 20%;
+            text-align: right;
+        }
+        .bot-message {
+            background-color: var(--aqua-blue);
+            color: white;
+            margin-right: 20%;
+        }
+        #yacht-modal, #payment-modal, #booking-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+        #yacht-modal-content, #payment-modal-content, #booking-modal-content {
+            background-color: white;
+            border-radius: 12px;
+            max-width: 800px;
+            width: 95%;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .yacht-card {
+            transition: transform 0.2s;
+        }
+        .yacht-card:hover {
+            transform: scale(1.02);
+        }
+        #countdown-timer {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--coral-red);
+        }
+        .faq-item {
+            cursor: pointer;
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .faq-answer {
+            display: none;
+            padding: 0.5rem 1rem;
+        }
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+        .reviews-carousel {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+        .reviews-container {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+        .review-card {
+            flex: 0 0 33.33%;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+        .review-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: var(--aqua-blue);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+        }
+        .review-nav-left {
+            left: 10px;
+        }
+        .review-nav-right {
+            right: 10px;
+        }
+        @media (max-width: 640px) {
+            .book-now-btn, .contact-btn, .view-yachts-btn {
+                padding: 1.5rem 2.5rem;
+                font-size: 1.3rem;
+            }
+            #yacht-modal-content, #payment-modal-content, #booking-modal-content {
+                width: 98%;
+                max-height: 90vh;
+            }
+            .gallery-img {
+                height: 150px;
+            }
+            .review-card {
+                flex: 0 0 100%;
+            }
+        }
+    </style>
+</head>
+<body class="bg-white font-sans">
+    <!-- Header -->
+    <header class="bg-dark-gray text-white py-4 sticky top-0 z-10">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Flawless Watersports</h1>
+            <nav>
+                <ul class="flex space-x-6">
+                    <li><a href="#home" class="hover:text-aqua-blue">Home</a></li>
+                    <li><a href="#book" class="hover:text-aqua-blue">Book Now</a></li>
+                    <li><a href="#fleet" class="hover:text-aqua-blue">Fleet</a></li>
+                    <li><a href="#location" class="hover:text-aqua-blue">Location</a></li>
+                    <li><a href="#partner" class="hover:text-aqua-blue">Partner</a></li>
+                    <li><a href="#contact" class="hover:text-aqua-blue">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-bg py-24 text-center text-white">
+        <div class="container mx-auto px-4">
+            <h1 class="text-5xl font-bold mb-4">Unleash Luxury with Flawless Watersports</h1>
+            <p class="text-xl mb-6 max-w-2xl mx-auto">
+                Experience Miami’s waters with premium jetski and yacht rentals. Book your bespoke adventure today in English or Spanish.
+            </p>
+            <div class="flex justify-center space-x-4">
+                <a href="#book" class="bg-sunny-yellow text-dark-gray px-8 py-4 rounded-lg text-lg font-bold hover:bg-coral-red hover:text-white">Book Now</a>
+                <a href="tel:3057978114" class="contact-btn bg-aqua-blue text-white px-8 py-4 rounded-lg text-lg font-bold">Call or Text Us</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Booking Section -->
+    <section id="book" class="py-16 bg-gray-100">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center text-dark-gray mb-8">Reserve Your Luxury Experience</h2>
+            <p class="text-center text-dark-gray mb-6 max-w-2xl mx-auto">
+                Book jetskis ($150/hr, 8:00 AM–7:00 PM) or yachts (8:00 AM–10:00 PM). Choose from small yachts (20+ ft) or luxury yachts (50+ ft). Call 305-797-8114 for real-time availability.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <div class="p-6 bg-white rounded-lg shadow-lg text-center border-2 border-aqua-blue">
+                    <h3 class="text-xl font-bold text-aqua-blue mb-2">Jetski</h3>
+                    <p class="text-dark-gray mb-2">$150/hr</p>
+                    <input type="text" id="jetski-datetime" placeholder="Select Date & Time" class="mb-4 flatpickr-input" title="Call 305-797-8114 for real-time availability">
+                    <p id="jetski-price" class="text-dark-gray mb-4">Total: $150 for 1 hour</p>
+                    <button onclick="openPaymentModal('Jetski', 'jetski-datetime')" class="book-now-btn bg-sunny-yellow text-dark-gray px-6 py-3 rounded-lg w-full">Book Now</button>
+                </div>
+                <div class="p-6 bg-white rounded-lg shadow-lg text-center border-2 border-aqua-blue">
+                    <h3 class="text-xl font-bold text-aqua-blue mb-2">Small Yacht (20+ ft)</h3>
+                    <p class="text-dark-gray mb-2">Contact us for pricing</p>
+                    <input type="text" id="small-yacht-datetime" placeholder="Select Date & Time" class="mb-4 flatpickr-input" title="Call 305-797-8114 for real-time availability">
+                    <p id="small-yacht-price" class="text-dark-gray mb-4">Contact us for pricing</p>
+                    <button onclick="openYachtModal('small')" class="view-yachts-btn bg-aqua-blue text-white px-6 py-3 rounded-lg w-full mb-2">View Yachts</button>
+                    <button onclick="bookYacht('small', 'small-yacht-datetime')" class="book-now-btn bg-sunny-yellow text-dark-gray px-6 py-3 rounded-lg w-full">Book Now</button>
+                </div>
+                <div class="p-6 bg-white rounded-lg shadow-lg text-center border-2 border-aqua-blue">
+                    <h3 class="text-xl font-bold text-aqua-blue mb-2">Luxury Yacht (50+ ft)</h3>
+                    <p class="text-dark-gray mb-2">Contact us for pricing</p>
+                    <input type="text" id="luxury-yacht-datetime" placeholder="Select Date & Time" class="mb-4 flatpickr-input" title="Call 305-797-8114 for real-time availability">
+                    <p id="luxury-yacht-price" class="text-dark-gray mb-4">Contact us for pricing</p>
+                    <button onclick="openYachtModal('luxury')" class="view-yachts-btn bg-aqua-blue text-white px-6 py-3 rounded-lg w-full mb-2">View Yachts</button>
+                    <button onclick="bookYacht('luxury', 'luxury-yacht-datetime')" class="book-now-btn bg-sunny-yellow text-dark-gray px-6 py-3 rounded-lg w-full">Book Now</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Yacht Selection Modal -->
+    <div id="yacht-modal">
+        <div id="yacht-modal-content">
+            <h2 id="modal-title" class="text-2xl font-bold text-dark-gray mb-4"></h2>
+            <div id="yacht-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+            <button onclick="closeYachtModal()" class="mt-4 bg-coral-red text-white px-6 py-3 rounded-lg w-full">Close</button>
+        </div>
+    </div>
+
+    <!-- Payment Modal for Jetski -->
+    <div id="payment-modal">
+        <div id="payment-modal-content">
+            <h2 class="text-2xl font-bold text-dark-gray mb-4">Complete Your Jetski Booking</h2>
+            <p class="text-dark-gray mb-4">Hurry! Your slot is reserved for: <span id="jetski-countdown-timer">10:00</span></p>
+            <p class="text-dark-gray mb-4">
+                <span class="text-coral-red font-bold">Send $150</span> via one of the methods below. 
+                <span class="text-coral-red font-bold">Include your booking date/time in the memo</span>. 
+                We’ll <span class="text-coral-red font-bold">confirm via email within 24 hours</span>.
+            </p>
+            <ul class="text-dark-gray mb-4">
+                <li><strong>Zelle</strong>: flawlesswatersports@gmail.com or 305-797-8114</li>
+                <li><strong>CashApp</strong>: $FlawlessWatersports</li>
+                <li><strong>PayPal</strong>: Coming Soon</li>
+            </ul>
+            <button onclick="submitJetskiBooking()" class="bg-sunny-yellow text-dark-gray px-6 py-3 rounded-lg w-full mb-2 hover:bg-coral-red hover:text-white">I’ve Sent Payment</button>
+            <button onclick="closePaymentModal()" class="bg-coral-red text-white px-6 py-3 rounded-lg w-full">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Booking Modal for Yachts with Countdown -->
+    <div id="booking-modal">
+        <div id="booking-modal-content">
+            <h2 class="text-2xl font-bold text-dark-gray mb-4">Confirm Your Yacht Booking</h2>
+            <p id="booking-details" class="text-dark-gray mb-4"></p>
+            <p class="text-dark-gray mb-4">Hurry! Your slot is reserved for: <span id="countdown-timer">10:00</span></p>
+            <button onclick="submitYachtBooking()" class="bg-sunny-yellow text-dark-gray px-6 py-3 rounded-lg w-full mb-2 hover:bg-coral-red hover:text-white">Submit to Reserve</button>
+            <button onclick="closeBookingModal()" class="bg-coral-red text-white px-6 py-3 rounded-lg w-full">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Fleet Section -->
+    <section id="fleet" class="py-16 bg-aqua-blue">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center text-white mb-8">Our Premier Fleet</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
+                <img src="https://images.unsplash.com/photo-1605289769178-4b937b1903b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=200" alt="Jetski in Action" class="gallery-img rounded-lg shadow-md">
+                <img src="https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=200" alt="Small Yacht at Sea" class="gallery-img rounded-lg shadow-md">
+                <img src="https://images.unsplash.com/photo-1585554497942-a6e7fd86eace?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=200" alt="Luxury Yacht in Miami" class="gallery-img rounded-lg shadow-md">
+                <img src="https://images.unsplash.com/photo-1624544196719-b73f90c6f0bb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=200" alt="Jetski Wave Jumping" class="gallery-img rounded-lg shadow-md">
+                <img src="https://images.unsplash.com/photo-1598972898439-2d5cd4f3c7a8?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=200" alt="Yacht at Sunset" class="gallery-img rounded-lg shadow-md">
+                <img src="https://images.unsplash.com/photo-1605289769178-4b937b1903b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=200" alt="Jetski Adventure" class="gallery-img rounded-lg shadow-md">
+            </div>
+            <p class="text-center text-white mt-4">Follow <a href="https://www.instagram.com/flawlesswatersports" class="underline">@flawlesswatersports</a> for our latest fleet updates.</p>
+        </div>
+    </section>
+
+    <!-- Reviews Section (Static Carousel) -->
+    <section id="testimonials" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center text-dark-gray mb-8">What Our Clients Say</h2>
+            <div class="reviews-carousel">
+                <div class="review-nav review-nav-left" onclick="moveCarousel(-1)">&#10094;</div>
+                <div class="review-nav review-nav-right" onclick="moveCarousel(1)">&#10095;</div>
+                <div class="reviews-container" id="reviews-container">
+                    <div class="review-card">
+                        <div class="p-6 bg-gray-100 rounded-lg shadow-md text-center">
+                            <p class="text-dark-gray mb-4">"Captain John was amazing! The yacht was pristine, and the sunset views were unforgettable."</p>
+                            <p class="font-bold text-aqua-blue">– Emily R., Miami</p>
+                        </div>
+                    </div>
+                    <div class="review-card">
+                        <div class="p-6 bg-gray-100 rounded-lg shadow-md text-center">
+                            <p class="text-dark-gray mb-4">"The jetski rental was a blast! Clear instructions and top-notch equipment."</p>
+                            <p class="font-bold text-aqua-blue">– Michael S., Fort Lauderdale</p>
+                        </div>
+                    </div>
+                    <div class="review-card">
+                        <div class="p-6 bg-gray-100 rounded-lg shadow-md text-center">
+                            <p class="text-dark-gray mb-4">"Booked a small yacht for a family outing. The crew was professional and made us feel at home."</p>
+                            <p class="font-bold text-aqua-blue">– Sofia G., Key Biscayne</p>
+                        </div>
+                    </div>
+                    <div class="review-card">
+                        <div class="p-6 bg-gray-100 rounded-lg shadow-md text-center">
+                            <p class="text-dark-gray mb-4">"Best water sports experience in Miami! Quick booking and friendly staff."</p>
+                            <p class="font-bold text-aqua-blue">– David L., Coral Gables</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="text-center text-dark-gray mt-4">See more on <a href="https://www.instagram.com/flawlesswatersports" class="underline">@flawlesswatersports</a>.</p>
+        </div>
+    </section>
+
+    <!-- Location Section -->
+    <section id="location" class="py-16 bg-gray-100">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center text-dark-gray mb-8">Our Miami Location</h2>
+            <p class="text-center text-dark-gray mb-6 max-w-2xl mx-auto">
+                Rentals depart from Miami Beach Marina or nearby locations. Exact pickup details provided post-booking. Call 305-797-8114 for inquiries.
+            </p>
+            <div class="max-w-3xl mx-auto">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3592.923264571551!2d-80.141888684955!3d25.777777983628!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x88d9b4b7c1a3b7b7%3A0x8c7f3b3b7e6f7f7!2sMiami%20Beach%20Marina!5e0!3m2!1sen!2sus!4v1666655555555" width="100%" height="400" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+        </div>
+    </section>
+
+    <!-- Partner Section -->
+    <section id="partner" class="py-16 bg-gray-100">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center text-dark-gray mb-8">Join Our Premier Network</h2>
+            <p class="text-center text-dark-gray mb-6 max-w-2xl mx-auto">
+                Own a jetski or yacht? Partner with us to reach luxury clients. We handle marketing and bookings, paying you via Zelle, CashApp, or other methods after each rental.
+            </p>
+            <div class="flex justify-center space-x-4">
+                <a href="#contact" class="bg-sunny-yellow text-dark-gray px-8 py-4 rounded-lg text-lg font-bold hover:bg-coral-red hover:text-white">Contact Us</a>
+                <a href="tel:3057978114" class="contact-btn bg-aqua-blue text-white px-8 py-4 rounded-lg text-lg font-bold">Call or Text Us</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section with Updated FAQ -->
+    <section id="contact" class="py-16 bg-gray-100">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center text-dark-gray mb-8">Connect with Us</h2>
+            <p class="text-center text-dark-gray mb-6">Questions or inquiries? Call or text 305-797-8114, or submit below. We respond via flawlesswatersports@gmail.com with instant confirmation.</p>
+            <div class="max-w-3xl mx-auto mb-12">
+                <h3 class="text-2xl font-bold text-dark-gray mb-4">Frequently Asked Questions</h3>
+                <div class="faq-item">
+                    <h4 class="text-lg font-bold text-aqua-blue">What’s included in a jetski rental?</h4>
+                    <div class="faq-answer text-dark-gray">Fuel, safety gear, and a brief orientation.</div>
+                </div>
+                <div class="faq-item">
+                    <h4 class="text-lg font-bold text-aqua-blue">How do I book a yacht?</h4>
+                    <div class="faq-answer text-dark-gray">Select a yacht and date/time, then submit the form or call 305-797-8114 within 10 minutes to reserve. Pricing is provided post-booking.</div>
+                </div>
+                <div class="faq-item">
+                    <h4 class="text-lg font-bold text-aqua-blue">What’s your cancellation policy?</h4>
+                    <div class="faq-answer text-dark-gray">Cancel 48 hours in advance for a full refund. Contact us for details.</div>
+                </div>
+                <div class="faq-item">
+                    <h4 class="text-lg font-bold text-aqua-blue">Are your vessels safe?</h4>
+                    <div class="faq-answer text-dark-gray">All vessels are insured, regularly maintained, and operated by licensed captains for yachts. Life jackets provided.</div>
+                </div>
+                <div class="faq-item">
+                    <h4 class="text-lg font-bold text-aqua-blue">What payment methods are accepted?</h4>
+                    <div class="faq-answer text-dark-gray">Zelle (flawlesswatersports@gmail.com or 305-797-8114), CashApp ($FlawlessWatersports), PayPal, or cash on-site.</div>
+                </div>
+            </div>
+            <form action="https://formspree.io/f/your-formspree-id" method="POST" class="max-w-lg mx-auto space-y-4">
+                <input type="text" name="name" placeholder="Your Name" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-aqua-blue" required>
+                <input type="email" name="email" placeholder="Your Email" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-aqua-blue" required>
+                <textarea name="message" placeholder="Your Message" rows="5" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-aqua-blue" required></textarea>
+                <input type="hidden" name="_subject" value="New Booking Inquiry">
+                <input type="hidden" name="_replyto" value="{{email}}">
+                <input type="hidden" name="_autoresponse" value="Thank you for booking with Flawless Watersports! Your request for {{message}} has been received. We'll confirm within 24 hours. Call 305-797-8114 for urgent inquiries.">
+                <button type="submit" class="bg-sunny-yellow text-dark-gray px-6 py-3 rounded-lg w-full font-bold hover:bg-coral-red hover:text-white">Send Inquiry</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer with Updated Icons -->
+    <footer class="bg-dark-gray text-white py-6">
+        <div class="container mx-auto px-4 text-center">
+            <p>© 2025 Flawless Watersports. All rights reserved.</p>
+            <p class="mt-2">Contact: <a href="mailto:flawlesswatersports@gmail.com" class="underline">flawlesswatersports@gmail.com</a> | <a href="tel:3057978114" class="underline">305-797-8114</a> | <a href="sms:3057978114" class="underline">Text Us</a></p>
+            <p class="mt-2">Trusted by 500+ Customers</p>
+            <div class="flex justify-center space-x-4 mt-4">
+                <span class="flex items-center">
+                    <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92c-.5.51-1.2.83-1.77.83v-2c.34 0 .87-.17 1.23-.5l1.44-1.47c.39-.39.39-1.02 0-1.41-.39-.39-1.02-.39-1.41 0l-1.56 1.56c-.36.36-.7.67-.7 1.02h-2c0-1.02.67-1.92 1.56-2.81l1.91-1.91c1.17-1.17 3.07-1.17 4.24 0 1.17 1.17 1.17 3.07 0 4.24l-1.94 1.94z"/></svg>
+                    Insured Vessels
+                </span>
+                <span class="flex items-center">
+                    <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                    Secure Payments
+                </span>
+                <span class="flex items-center">
+                    <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                    Satisfaction Guarantee
+                </span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Active Viewers Tab -->
+    <div id="active-viewers">5 Active Viewers</div>
+
+    <!-- Chatbot -->
+    <div id="chatbot-toggle">💬</div>
+    <div id="chatbot-container">
+        <div id="chatbot-header">AI for Flawless Watersports</div>
+        <div id="chatbot-messages"></div>
+        <input type="text" id="chatbot-input" placeholder="Ask about our services...">
+    </div>
+
+    <script>
+        // Initialize Flatpickr with disabled dates for mock real-time
+        flatpickr("#jetski-datetime", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            minDate: "today",
+            maxDate: new Date().fp_incr(30),
+            minTime: "08:00",
+            maxTime: "19:00",
+            time_24hr: false,
+            disable: ["2025-05-05", "2025-05-12", "2025-05-19", "2025-05-26", "2025-06-02", "2025-06-09"],
+            onChange: function(selectedDates, dateStr, instance) {
+                updatePrice('jetski-price', 150, selectedDates);
+                gtag('event', 'select_jetski_datetime', { 'datetime': dateStr });
+            }
+        });
+
+        flatpickr("#small-yacht-datetime", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            minDate: "today",
+            maxDate: new Date().fp_incr(30),
+            minTime: "08:00",
+            maxTime: "22:00",
+            time_24hr: false,
+            disable: ["2025-05-06", "2025-05-13", "2025-05-20", "2025-05-27", "2025-06-03", "2025-06-10"],
+            onChange: function(selectedDates, dateStr, instance) {
+                document.getElementById('small-yacht-price').textContent = 'Contact us for pricing';
+                gtag('event', 'select_small_yacht_datetime', { 'datetime': dateStr });
+            }
+        });
+
+        flatpickr("#luxury-yacht-datetime", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            minDate: "today",
+            maxDate: new Date().fp_incr(30),
+            minTime: "08:00",
+            maxTime: "22:00",
+            time_24hr: false,
+            disable: ["2025-05-07", "2025-05-14", "2025-05-21", "2025-05-28", "2025-06-04", "2025-06-11"],
+            onChange: function(selectedDates, dateStr, instance) {
+                document.getElementById('luxury-yacht-price').textContent = 'Contact us for pricing';
+                gtag('event', 'select_luxury_yacht_datetime', { 'datetime': dateStr });
+            }
+        });
+
+        // Update price display
+        function updatePrice(elementId, pricePerHour, selectedDates) {
+            if (selectedDates.length > 0) {
+                document.getElementById(elementId).textContent = `Total: $${pricePerHour} for 1 hour`;
+            }
+        }
+
+        // Payment modal for jetski
+        let jetskiBookingDetails = { type: '', datetime: '' };
+        let jetskiCountdownInterval;
+        function openPaymentModal(type, datetimeId) {
+            const datetimeInput = document.getElementById(datetimeId).value;
+            if (!datetimeInput) {
+                alert('Please select a date and time.');
+                return;
+            }
+            jetskiBookingDetails = { type, datetime: datetimeInput };
+            document.getElementById('payment-modal').style.display = 'flex';
+            startJetskiCountdown();
+            gtag('event', 'open_jetski_payment_modal', { 'type': type });
+        }
+
+        function closePaymentModal() {
+            clearInterval(jetskiCountdownInterval);
+            document.getElementById('payment-modal').style.display = 'none';
+        }
+
+        function startJetskiCountdown() {
+            let timeLeft = 10 * 60; // 10 minutes
+            const timerElement = document.getElementById('jetski-countdown-timer');
+            jetskiCountdownInterval = setInterval(() => {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                timeLeft--;
+                if (timeLeft < 0) {
+                    clearInterval(jetskiCountdownInterval);
+                    alert('Time expired! Please restart your booking.');
+                    closePaymentModal();
+                    jetskiBookingDetails = { type: '', datetime: '' };
+                }
+            }, 1000);
+        }
+
+        function submitJetskiBooking() {
+            const message = `Jetski booking for ${jetskiBookingDetails.datetime}. Payment sent via Zelle/CashApp.`;
+            document.querySelector('#contact textarea').value = message;
+            document.querySelector('#contact').scrollIntoView({ behavior: 'smooth' });
+            gtag('event', 'submit_jetski_booking', { 'datetime': jetskiBookingDetails.datetime });
+            clearInterval(jetskiCountdownInterval);
+            closePaymentModal();
+        }
+
+        // Yacht booking
+        const yachtData = {
+            small: [
+                { name: 'Aqua Breeze', footage: '25 ft', amenities: 'Sun deck, Bluetooth audio', image: 'https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=200' },
+                { name: 'Coral Star', footage: '30 ft', amenities: 'Lounge area, mini bar', image: 'https://images.unsplash.com/photo-1598972898439-2d5cd4f3c7a8?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=200' },
+                { name: 'Wave Dancer', footage: '35 ft', amenities: 'Fishing gear, shaded cockpit', image: 'https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=200' }
+            ],
+            luxury: [
+                { name: 'Majestic Horizon', footage: '55 ft', amenities: 'Jacuzzi, gourmet galley', image: 'https://images.unsplash.com/photo-1585554497942-a6e7fd86eace?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=200' },
+                { name: 'Starlight Serenity', footage: '65 ft', amenities: 'Master suite, cinema room', image: 'https://images.unsplash.com/photo-1585554497942-a6e7fd86eace?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=200' },
+                { name: 'Ocean Monarch', footage: '80 ft', amenities: 'Spa, water toys', image: 'https://images.unsplash.com/photo-1585554497942-a6e7fd86eace?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=200' }
+            ]
+        };
+        let yachtBookingDetails = { type: '', datetime: '', yachtName: '' };
+        let countdownInterval;
+
+        function openYachtModal(type) {
+            const modal = document.getElementById('yacht-modal');
+            const title = document.getElementById('modal-title');
+            const list = document.getElementById('yacht-list');
+            title.textContent = type === 'small' ? 'Small Yachts (20+ ft)' : 'Luxury Yachts (50+ ft)';
+            list.innerHTML = '';
+            yachtData[type].forEach(yacht => {
+                const card = document.createElement('div');
+                card.className = 'yacht-card p-4 bg-gray-100 rounded-lg';
+                card.innerHTML = `
+                    <img src="${yacht.image}" alt="${yacht.name} Yacht" class="w-full h-32 object-cover rounded-lg mb-2">
+                    <h3 class="text-lg font-bold text-dark-gray">${yacht.name}</h3>
+                    <p class="text-dark-gray">${yacht.footage}</p>
+                    <p class="text-dark-gray mb-2">${yacht.amenities}</p>
+                    <button onclick="selectYacht('${type}', '${yacht.name}')" class="bg-sunny-yellow text-dark-gray px-4 py-2 rounded-lg w-full hover:bg-coral-red hover:text-white">Select</button>
+                `;
+                list.appendChild(card);
+            });
+            modal.style.display = 'flex';
+            gtag('event', 'open_yacht_modal', { 'type': type });
+        }
+
+        function selectYacht(type, name) {
+            yachtBookingDetails.type = type;
+            yachtBookingDetails.yachtName = name;
+            alert(`Selected ${name} for ${type} yacht booking.`);
+            closeYachtModal();
+            gtag('event', 'select_yacht', { 'type': type, 'name': name });
+        }
+
+        function closeYachtModal() {
+            document.getElementById('yacht-modal').style.display = 'none';
+        }
+
+        function bookYacht(type, datetimeId) {
+            const datetimeInput = document.getElementById(datetimeId).value;
+            if (!datetimeInput) {
+                alert('Please select a date and time.');
+                return;
+            }
+            if (!yachtBookingDetails.yachtName || yachtBookingDetails.type !== type) {
+                alert('Please select a yacht from the View Yachts menu.');
+                return;
+            }
+            yachtBookingDetails.datetime = datetimeInput;
+            openBookingModal();
+        }
+
+        function openBookingModal() {
+            const modal = document.getElementById('booking-modal');
+            const details = document.getElementById('booking-details');
+            details.textContent = `Booking ${yachtBookingDetails.type === 'small' ? 'Small Yacht' : 'Luxury Yacht'}: ${yachtBookingDetails.yachtName} on ${yachtBookingDetails.datetime}. Submit or call 305-797-8114 to reserve.`;
+            startCountdown();
+            modal.style.display = 'flex';
+            gtag('event', 'open_booking_modal', { 'yacht': yachtBookingDetails.yachtName });
+        }
+
+        function closeBookingModal() {
+            clearInterval(countdownInterval);
+            document.getElementById('booking-modal').style.display = 'none';
+        }
+
+        function startCountdown() {
+            let timeLeft = 10 * 60; // 10 minutes
+            const timerElement = document.getElementById('countdown-timer');
+            countdownInterval = setInterval(() => {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                timeLeft--;
+                if (timeLeft < 0) {
+                    clearInterval(countdownInterval);
+                    alert('Time expired! Please restart your booking.');
+                    closeBookingModal();
+                    yachtBookingDetails = { type: '', datetime: '', yachtName: '' };
+                }
+            }, 1000);
+        }
+
+        function submitYachtBooking() {
+            const message = `Interested in booking ${yachtBookingDetails.type === 'small' ? 'Small Yacht' : 'Luxury Yacht'}: ${yachtBookingDetails.yachtName} on ${yachtBookingDetails.datetime}. Please provide pricing and confirm availability.`;
+            document.querySelector('#contact textarea').value = message;
+            document.querySelector('#contact').scrollIntoView({ behavior: 'smooth' });
+            gtag('event', 'submit_yacht_booking', { 'yacht': yachtBookingDetails.yachtName, 'datetime': yachtBookingDetails.datetime });
+            clearInterval(countdownInterval);
+            closeBookingModal();
+        }
+
+        // Chatbot
+        const chatbotContainer = document.getElementById('chatbot-container');
+        const chatbotMessages = document.getElementById('chatbot-messages');
+        const chatbotInput = document.getElementById('chatbot-input');
+        const chatbotToggle = document.getElementById('chatbot-toggle');
+
+        chatbotToggle.addEventListener('click', () => {
+            chatbotContainer.style.display = chatbotContainer.style.display === 'none' ? 'flex' : 'none';
+        });
+
+        chatbotInput.addEventListener('keypress', async (e) => {
+            if (e.key === 'Enter' && chatbotInput.value.trim()) {
+                const userMessage = chatbotInput.value.trim();
+                addMessage(userMessage, 'user');
+                chatbotInput.value = '';
+                const botResponse = await getBotResponse(userMessage);
+                addMessage(botResponse, 'bot');
+                gtag('event', 'chatbot_interaction', { 'message': userMessage });
+            }
+        });
+
+        function addMessage(text, sender) {
+            const message = document.createElement('div');
+            message.className = `chatbot-message ${sender}-message`;
+            message.textContent = text;
+            chatbotMessages.appendChild(message);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }
+
+        async function getBotResponse(message) {
+            const responses = {
+                'what do you offer': 'Flawless Watersports offers jetski rentals ($150/hr, 8:00 AM–7:00 PM) and yacht charters (small 20+ ft, luxury 50+ ft) in Miami. Pay jetskis via Zelle or CashApp to flawlesswatersports@gmail.com or 305-797-8114. Contact us for yacht pricing.',
+                'jetski hours': 'Jetskis run from 8:00 AM to 7:00 PM daily, respecting sundown restrictions.',
+                'yacht hours': 'Yachts are available from 8:00 AM to 10:00 PM daily.',
+                'how to book': 'For jetskis, select a date/time, send $150 via Zelle or CashApp, and submit the form. For yachts, choose a vessel and date/time, then submit or call 305-797-8114 within 10 minutes to reserve. Check availability at Miami Beach Marina.',
+                'partnership': 'Own a jetski or yacht? Partner with us for marketing and bookings. We pay via Zelle, CashApp, etc. Call 305-797-8114 or use the contact form.',
+                'contact': 'Call/text 305-797-8114 or email flawlesswatersports@gmail.com. Submit inquiries via our contact form.',
+                'location': 'Rentals depart from Miami Beach Marina or nearby. Exact pickup confirmed post-booking. Call 305-797-8114 for details.'
+            };
+            const lowerMessage = message.toLowerCase();
+            for (const key in responses) {
+                if (lowerMessage.includes(key)) {
+                    return responses[key];
+                }
+            }
+            return 'I’m AI for Flawless Watersports. Ask about jetski/yacht rentals, booking, hours, partnerships, or our Miami Beach Marina location!';
+        }
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Active viewers
+        function updateActiveViewers() {
+            const viewers = Math.floor(Math.random() * 16) + 5;
+            document.getElementById('active-viewers').textContent = `${viewers} Active Viewers`;
+        }
+        updateActiveViewers();
+        setInterval(updateActiveViewers, 10000);
+
+        // FAQ toggle
+        document.querySelectorAll('.faq-item').forEach(item => {
+            item.addEventListener('click', () => {
+                item.classList.toggle('active');
+            });
+        });
+
+        // Reviews carousel
+        let currentReviewIndex = 0;
+        const reviewCards = document.querySelectorAll('.review-card');
+        const totalReviews = reviewCards.length;
+        function moveCarousel(direction) {
+            currentReviewIndex += direction;
+            if (currentReviewIndex < 0) currentReviewIndex = totalReviews - 3;
+            if (currentReviewIndex > totalReviews - 3) currentReviewIndex = 0;
+            const offset = currentReviewIndex * -33.33;
+            document.getElementById('reviews-container').style.transform = `translateX(${offset}%)`;
+            gtag('event', 'navigate_reviews', { 'direction': direction });
+        }
+    </script>
+</body>
+</html>
